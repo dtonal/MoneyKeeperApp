@@ -9,7 +9,7 @@ import com.loopj.android.http.RequestParams;
 
 public class MoneyKeeperRestClient {
 
-    private static final String BASE_URL = "http://46.101.102.237:4000/api/";
+    private static final String BASE_URL = "http://46.101.102.237:3000/api/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
