@@ -76,12 +76,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         preferences = getSharedPreferences(settingsFileName, 0);
 
-        String savedToken = preferences.getString("token", null);
+        String mail = preferences.getString("mail", null);
+        String pass = preferences.getString("pass", null);
 
-        if(savedToken != null)
+        if(mail != null && pass != null)
         {
             changeToMainActivity();
-            //mResultView.setText(savedToken);
         }
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -205,7 +205,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             RequestParams requestParams = new RequestParams();
             requestParams.put("email", email);
             requestParams.put("password", password);
-            System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
             MoneyKeeperRestClient.post("sessions.json", requestParams, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -214,7 +213,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         String tokenFromRespone = response.getString("token");
                         if(tokenFromRespone != null)
                         {
-                            preferences.edit().putString("token", tokenFromRespone).commit();
+                            savePreferences();
                             changeToMainActivity();
                         }
                         mResultView.setText(tokenFromRespone);
@@ -223,12 +222,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                     showProgress(false);
 
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
-                    showProgress(false);
-                    mPasswordView.setError("GUT");
                 }
 
                 @Override
@@ -250,6 +243,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             });
 
         }
+    }
+
+    private void savePreferences() {
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        SharedPreferences.Editor prefEditor = preferences.edit();
+        prefEditor.putString("mail", email);
+        prefEditor.putString("pass", password);
+        prefEditor.commit();
     }
 
     private boolean isEmailValid(String email) {
