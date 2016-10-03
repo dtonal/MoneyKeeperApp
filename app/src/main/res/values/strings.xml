@@ -3,7 +3,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Anmelden</string>
     <string name="action_sign_in_short">Anmelden</string>
     <string name="error_invalid_email">Die E-Mailadresse ist ungültig</string>
@@ -24,6 +24,7 @@
     <string name="category">Kategorie</string>
     <string name="comment">Kommentar</string>
     <string name="save">Speichern</string>
+    <string name="logout">Abmelden</string>
     <string-array name="market_array">
         <item>Supermarkt</item>
         <item>Discounter</item>
@@ -38,5 +39,8 @@
         <item>Stricken</item>
         <item>Tankstelle</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

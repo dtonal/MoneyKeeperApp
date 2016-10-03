@@ -1,5 +1,6 @@
 package de.dtonal.moneykeeperapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,12 +16,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import static de.dtonal.moneykeeperapp.LoginActivity.settingsFileName;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AddCostFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AddCostFragment.OnFragmentInteractionListener, CostsFragment.OnFragmentInteractionListener {
 
     public MoneyKeeperRestClientWithAuth client;
 
@@ -33,15 +35,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -57,16 +50,17 @@ public class MainActivity extends AppCompatActivity
 
         mMail = preferences.getString("mail", null);
         mPass = preferences.getString("pass", null);
+
+
+        AddCostFragment addCostFragment = AddCostFragment.newInstance(mMail, mPass);
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        // Just do nothing
+        //TODO Implement fragment switching here
     }
 
     @Override
@@ -84,7 +78,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
+            SharedPreferences preferences = getSharedPreferences(settingsFileName, 0);
+
+            SharedPreferences.Editor prefEditor = preferences.edit();
+            prefEditor.putString("mail", null);
+            prefEditor.putString("pass", null);
+            prefEditor.commit();
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -102,6 +105,9 @@ public class MainActivity extends AppCompatActivity
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
         } else if (id == R.id.nav_list_costs) {
+            CostsFragment costsFragment = CostsFragment.newInstance(mMail, mPass);
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.content_main, costsFragment, costsFragment.getTag()).commit();
 
         }
 
