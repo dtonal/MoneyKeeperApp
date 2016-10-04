@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView6"
-        tools:text="@string/value"
+        tools:text="@string/price"
         android:text="Kosten"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView5"
-        tools:text="@string/category"
+        tools:text="@string/store"
         android:text="Kategorie"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 

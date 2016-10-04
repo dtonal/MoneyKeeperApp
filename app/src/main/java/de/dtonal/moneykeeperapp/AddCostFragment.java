@@ -125,7 +125,7 @@ public class AddCostFragment extends Fragment {
         try {
             value = Double.parseDouble(mEditValue.getText().toString());
         } catch (NumberFormatException e) {
-            mEditValue.setError("Bitte eine Zahl eingeben.");
+            mEditValue.setError(getResources().getString(R.string.error_invalid_value));
             return;
         }
 
@@ -151,6 +151,7 @@ public class AddCostFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
                 mTextProcessing.setVisibility(View.VISIBLE);
+                mTextProcessing.setText(getResources().getString(R.string.add_cost_success));
                 mTextProcessing.setBackgroundColor(Color.GREEN);
                 progressDialog.dismiss();
             }
@@ -161,7 +162,7 @@ public class AddCostFragment extends Fragment {
                 Log.d(TAG, "onFailure " + t.toString());
                 mTextProcessing.setVisibility(View.VISIBLE);
                 mTextProcessing.setBackgroundColor(Color.RED);
-                mTextProcessing.setText("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
+                mTextProcessing.setText(getResources().getString(R.string.error_while_add_cost));
                 progressDialog.dismiss();
 
             }
@@ -172,7 +173,7 @@ public class AddCostFragment extends Fragment {
 
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 mTextProcessing.setBackgroundColor(Color.RED);
-                mTextProcessing.setText("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
+                mTextProcessing.setText(R.string.error_while_add_cost);
                 progressDialog.dismiss();
             }
 

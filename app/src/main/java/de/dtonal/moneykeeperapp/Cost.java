@@ -1,12 +1,52 @@
 package de.dtonal.moneykeeperapp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Date;
+
 /**
  * Created by dtonal on 02.10.16.
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Cost {
-    private double value;
-    private String category;
+    private Double price;
+    private String store;
+    @JsonProperty("user_id")
+    private Integer userId;
+    @JsonProperty("created_at")
+    private Date createdAt;
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    @JsonProperty("updated_at")
+    private Date updatedAt;
+    private String comment;
+
+    public Cost() {
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public String getComment() {
         return comment;
@@ -16,27 +56,19 @@ public class Cost {
         this.comment = comment;
     }
 
-    public double getValue() {
-        return value;
+    public Double getPrice() {
+        return price;
     }
 
-    public void setValue(double value) {
-        this.value = value;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
-    public String getCategory() {
-        return category;
+    public String getStore() {
+        return store;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    private String comment;
-
-    public Cost(double value, String category, String comment) {
-        this.value = value;
-        this.category = category;
-        this.comment = comment;
+    public void setStore(String store) {
+        this.store = store;
     }
 }

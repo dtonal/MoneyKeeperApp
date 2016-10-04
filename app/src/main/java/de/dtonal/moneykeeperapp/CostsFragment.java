@@ -14,6 +14,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -21,8 +25,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
@@ -42,7 +48,7 @@ public class CostsFragment extends Fragment {
     private static final String ARG_MAIL = "mail";
     private static final String ARG_PASS = "pass";
 
-
+    private ObjectMapper mapper = new ObjectMapper();
     private String mMail;
     private String mPass;
 
@@ -130,23 +136,14 @@ public class CostsFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
                 Log.d(TAG, "onSuccess " + responseArray.toString());
-                ArrayList<String> arrayResponseAsStrings = new ArrayList<String>();
-                for(int i = 0; i < responseArray.length() ; i++)
-                {
-
-                    try {
-                        JSONObject objects = responseArray.getJSONObject(i);
-                        String resultString = DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(Double.parseDouble(objects.getString("price")));
-                        resultString += " / " + objects.getString("store");
-                        arrayResponseAsStrings.add(resultString);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    //Iterate through the elements of the array i.
-                    //Get thier value.
-                    //Get the value for the first element and the value for the last element.
+                ArrayList<Cost> costs = null;
+                try {
+                    costs = mapper.readValue(responseArray.toString(), new TypeReference<ArrayList<Cost>>(){});
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                setArrayAdapter(arrayResponseAsStrings);
+                CostsAdapter adapter = new CostsAdapter(getContext(), costs);
+                mListView.setAdapter(adapter);
             }
 
             @Override
@@ -166,10 +163,6 @@ public class CostsFragment extends Fragment {
         });
     }
 
-    private void setArrayAdapter(ArrayList<String> arrayResponseAsStrings) {
-        arrayAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_list_item_1, arrayResponseAsStrings);
-        mListView.setAdapter(arrayAdapter);
-    }
 
     /**
      * This interface must be implemented by activities that contain this
