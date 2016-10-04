@@ -59,8 +59,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        // Just do nothing
-        //TODO Implement fragment switching here
+
+        AddCostFragment addCostFragment = AddCostFragment.newInstance(mMail, mPass);
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
     }
 
     @Override

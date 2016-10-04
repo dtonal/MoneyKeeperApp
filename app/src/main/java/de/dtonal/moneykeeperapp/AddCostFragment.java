@@ -1,6 +1,8 @@
 package de.dtonal.moneykeeperapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -41,8 +44,11 @@ public class AddCostFragment extends Fragment {
     private Spinner mCategorySpinner;
     private EditText mEditValue;
     private EditText mEditComment;
+    private Button mSaveButton;
+    private TextView mTextProcessing;
 
     private OnFragmentInteractionListener mListener;
+    private ProgressDialog progressDialog;
 
     public AddCostFragment() {
         // Required empty public constructor
@@ -105,7 +111,8 @@ public class AddCostFragment extends Fragment {
 
         mEditValue = (EditText) getView().findViewById(R.id.editValue);
         mEditComment = (EditText) getView().findViewById(R.id.editComment);
-        Button mSaveButton = (Button) getView().findViewById(R.id.buttonSave);
+        mSaveButton = (Button) getView().findViewById(R.id.buttonSave);
+        mTextProcessing = (TextView) getView().findViewById(R.id.textProcessing);
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 tryToSave();
@@ -114,7 +121,14 @@ public class AddCostFragment extends Fragment {
     }
 
     private void tryToSave() {
-        Double value = Double.parseDouble(mEditValue.getText().toString());
+        Double value = null;
+        try {
+            value = Double.parseDouble(mEditValue.getText().toString());
+        } catch (NumberFormatException e) {
+            mEditValue.setError("Bitte eine Zahl eingeben.");
+            return;
+        }
+
         String comment = mEditComment.getText().toString();
         String category = mCategorySpinner.getSelectedItem().toString();
 
@@ -123,18 +137,32 @@ public class AddCostFragment extends Fragment {
         requestParams.put("comment", comment);
         requestParams.put("store", category);
 
+        mEditValue.setEnabled(false);
+        mCategorySpinner.setEnabled(false);
+        mEditComment.setEnabled(false);
+        mSaveButton.setEnabled(false);
+
+        progressDialog =  new ProgressDialog(this.getContext());
+        progressDialog.show();
+
 
         MoneyKeeperRestClientWithAuth.post("costs.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
-
+                mTextProcessing.setVisibility(View.VISIBLE);
+                mTextProcessing.setBackgroundColor(Color.GREEN);
+                progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(int a, Header[] h, String s, Throwable t)
             {
                 Log.d(TAG, "onFailure " + t.toString());
+                mTextProcessing.setVisibility(View.VISIBLE);
+                mTextProcessing.setBackgroundColor(Color.RED);
+                mTextProcessing.setText("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
+                progressDialog.dismiss();
 
             }
 
@@ -143,6 +171,9 @@ public class AddCostFragment extends Fragment {
                 Log.d(TAG, "onFailure " + errorResponse.toString());
 
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                mTextProcessing.setBackgroundColor(Color.RED);
+                mTextProcessing.setText("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
+                progressDialog.dismiss();
             }
 
         });

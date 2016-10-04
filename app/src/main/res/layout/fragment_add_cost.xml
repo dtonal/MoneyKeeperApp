@@ -6,11 +6,20 @@
     tools:context="de.dtonal.moneykeeperapp.AddCostFragment">
 
     <TextView
+        android:text="Neue Rechnung hinzufügen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textAlignment="center" />
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView6"
         tools:text="@string/value"
-        android:text="Kosten" />
+        android:text="Kosten"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <EditText
         android:layout_width="match_parent"
@@ -24,7 +33,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView5"
         tools:text="@string/category"
-        android:text="Kategorie" />
+        android:text="Kategorie"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <Spinner
         android:layout_width="match_parent"
@@ -35,7 +45,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView7"
-        tools:text="@string/comment" />
+        tools:text="@string/comment"
+        android:text="Kommentar"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <EditText
         android:layout_width="match_parent"
@@ -43,6 +55,13 @@
         android:inputType="textPersonName"
         android:ems="10"
         android:id="@+id/editComment" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textProcessing"
+        android:visibility="gone" />
 
     <Button
         android:layout_width="match_parent"
