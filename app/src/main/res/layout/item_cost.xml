@@ -55,4 +55,11 @@
         android:layout_alignBaseline="@+id/textUser"
         android:layout_alignBottom="@+id/textUser"
         android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:id="@+id/checkCost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textPrice"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

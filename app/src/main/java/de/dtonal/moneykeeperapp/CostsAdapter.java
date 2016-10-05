@@ -1,10 +1,13 @@
 package de.dtonal.moneykeeperapp;
 
 import android.content.Context;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -20,10 +23,22 @@ import java.util.Locale;
 public class CostsAdapter extends ArrayAdapter<Cost> {
     DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-
+    private SparseBooleanArray mSelectedItemsIds;
+    private CompoundButton.OnCheckedChangeListener mListener;
 
     public CostsAdapter(Context context, ArrayList<Cost> costs) {
         super(context, 0, costs);
+        mSelectedItemsIds = new SparseBooleanArray();
+        mListener = new CompoundButton.OnCheckedChangeListener() {
+
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    mSelectedItemsIds.put((Integer)buttonView.getTag(), isChecked);
+                else
+                    mSelectedItemsIds.delete((Integer)buttonView.getTag());
+                notifyDataSetChanged();
+            }
+        };
     }
 
 
@@ -57,6 +72,9 @@ public class CostsAdapter extends ArrayAdapter<Cost> {
         TextView tvUser = (TextView) convertView.findViewById(R.id.textUser);
 
         // Populate the data into the template view using the data object
+        CheckBox checkCost = (CheckBox) convertView.findViewById(R.id.checkCost);
+        checkCost.setTag(Integer.valueOf(position));
+        checkCost.setOnCheckedChangeListener(mListener);
 
         tvCreatedAtDate.setText(dateFormat.format(cost.getCreatedAt()));
 
@@ -70,5 +88,10 @@ public class CostsAdapter extends ArrayAdapter<Cost> {
 
         return convertView;
 
+    }
+
+
+    public SparseBooleanArray getSelectedIds() {
+        return mSelectedItemsIds;
     }
 }

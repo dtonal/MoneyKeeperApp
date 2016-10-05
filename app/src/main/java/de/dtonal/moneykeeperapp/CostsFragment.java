@@ -1,6 +1,7 @@
 package de.dtonal.moneykeeperapp;
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,9 +54,12 @@ public class CostsFragment extends Fragment {
     private String mPass;
 
     private ListView mListView;
-    private ArrayAdapter arrayAdapter;
+    private CostsAdapter mAdapter;
+
+    private Button mDeleteButton;
 
     private OnFragmentInteractionListener mListener;
+
 
     public CostsFragment() {
         // Required empty public constructor
@@ -124,6 +128,8 @@ public class CostsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mListView = (ListView) getView().findViewById(R.id.costs_list);
+        mDeleteButton = (Button) getView().findViewById(R.id.costs_delete);
+        mDeleteButton.setVisibility(View.GONE);
 
         RequestParams requestParams = new RequestParams();
         MoneyKeeperRestClientWithAuth.get("costs.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
@@ -142,8 +148,24 @@ public class CostsFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                CostsAdapter adapter = new CostsAdapter(getContext(), costs);
-                mListView.setAdapter(adapter);
+                mAdapter = new CostsAdapter(getContext(), costs);
+                mAdapter.registerDataSetObserver(new DataSetObserver()
+                {
+                    @Override
+                    public void onChanged()
+                    {
+                        Log.d(TAG, "onChanged " + mAdapter.getSelectedIds());
+                        if(mAdapter.getSelectedIds().size() > 0)
+                        {
+                            mDeleteButton.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            mDeleteButton.setVisibility(View.GONE);
+                        }
+                    }
+                });
+                mListView.setAdapter(mAdapter);
             }
 
             @Override

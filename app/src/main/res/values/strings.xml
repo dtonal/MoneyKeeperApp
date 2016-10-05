@@ -45,5 +45,6 @@
     <string name="error_while_add_cost">Hups! Fehler beim Hinzufügen. </string>
     <string name="add_cost_success">Rechnung erfolgreich hinzugefügt.</string>
     <string name="error_invalid_value">Bitte einen Wert eingeben.</string>
+    <string name="action_delete">Löschen</string>
 
 </resources>

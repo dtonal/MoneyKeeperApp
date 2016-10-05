@@ -10,6 +10,8 @@ import java.util.Date;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Cost {
+    private Integer id;
+
     private Double price;
     private String store;
     @JsonProperty("user_id")
@@ -70,5 +72,13 @@ public class Cost {
 
     public void setStore(String store) {
         this.store = store;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
