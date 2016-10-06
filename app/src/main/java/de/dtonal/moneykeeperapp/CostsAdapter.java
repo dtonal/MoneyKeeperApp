@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -63,28 +65,76 @@ public class CostsAdapter extends ArrayAdapter<Cost> {
 
         TextView tvCreatedAtDate = (TextView) convertView.findViewById(R.id.textCreatedAtDate);
 
-        TextView tvCreatedAtTime = (TextView) convertView.findViewById(R.id.textCreatedAtTime);
-
         TextView tvPrice = (TextView) convertView.findViewById(R.id.textPrice);
-
-        TextView tvStore = (TextView) convertView.findViewById(R.id.textStore);
-
-        TextView tvUser = (TextView) convertView.findViewById(R.id.textUser);
 
         // Populate the data into the template view using the data object
         CheckBox checkCost = (CheckBox) convertView.findViewById(R.id.checkCost);
         checkCost.setTag(Integer.valueOf(position));
         checkCost.setOnCheckedChangeListener(mListener);
 
-        tvCreatedAtDate.setText(dateFormat.format(cost.getCreatedAt()));
+        ImageView imageStore = (ImageView) convertView.findViewById(R.id.imageStore);
+        RelativeLayout rl = (RelativeLayout) convertView.findViewById(R.id.layoutCost);
 
-        tvCreatedAtTime.setText(timeFormat.format(cost.getCreatedAt()));
+        switch (cost.getStore())
+        {
+            case "Supermarkt":
+                imageStore.setImageResource(R.drawable.ic_shopping_cart);
+                rl.setBackgroundResource(R.color.colorSupermarket);
+                break;
+            case "Discounter":
+                imageStore.setImageResource(R.drawable.ic_discounter);
+                rl.setBackgroundResource(R.color.colorDiscounter);
+                break;
+            case "Drogiere":
+                imageStore.setImageResource(R.drawable.ic_drugstore);
+                rl.setBackgroundResource(R.color.colorDrugstore);
+                break;
+            case "Tiershop":
+                imageStore.setImageResource(R.drawable.ic_petshop);
+                rl.setBackgroundResource(R.color.colorPetshop);
+                break;
+            case "Baumarkt":
+                imageStore.setImageResource(R.drawable.ic_tool);
+                rl.setBackgroundResource(R.color.colorTool);
+                break;
+            case "Möbelhaus":
+                imageStore.setImageResource(R.drawable.ic_furniture);
+                rl.setBackgroundResource(R.color.colorFurniture);
+                break;
+            case "Buchhandlung":
+                imageStore.setImageResource(R.drawable.ic_bookstore);
+                rl.setBackgroundResource(R.color.colorBookstore);
+                break;
+            case "Restaurant":
+                imageStore.setImageResource(R.drawable.ic_restaurant);
+                rl.setBackgroundResource(R.color.colorRestaurant);
+                break;
+            case "Fussball":
+                imageStore.setImageResource(R.drawable.ic_soccer);
+                rl.setBackgroundResource(R.color.colorSoccer);
+                break;
+            case "Nähladen":
+                imageStore.setImageResource(R.drawable.ic_sewing);
+                rl.setBackgroundResource(R.color.colorSew);
+                break;
+            case "Stricken":
+                imageStore.setImageResource(R.drawable.ic_knit);
+                rl.setBackgroundResource(R.color.colorKnit);
+                break;
+            case "Tankstelle":
+                imageStore.setImageResource(R.drawable.ic_gas);
+                rl.setBackgroundResource(R.color.colorGas);
+                break;
+            case "Bäckerei":
+                imageStore.setImageResource(R.drawable.ic_bakery);
+                rl.setBackgroundResource(R.color.colorBakery);
+                break;
+        }
+
+        tvCreatedAtDate.setText(dateFormat.format(cost.getCreatedAt()));
 
         tvPrice.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(cost.getPrice()));
 
-        tvStore.setText(cost.getStore());
-
-        tvUser.setText(cost.getUserId().toString());
 
         return convertView;
 

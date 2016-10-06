@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnCount="3"
-    android:rowCount="3"
+    android:background="@color/colorBakery"
+    android:id="@+id/layoutCost"
     style="@style/Base.TextAppearance.AppCompat.Title">
 
-
-    <TextView
-        android:text="textCreatedAtDate"
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textCreatedAtDate"
+        app:srcCompat="@drawable/ic_bakery"
+        android:id="@+id/imageStore"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginLeft="40sp"
+        android:layout_marginTop="10sp"
+        android:layout_marginBottom="10sp"/>
 
-
-    <TextView
-        android:text="textCreatedAtTime"
+    <CheckBox
+        android:id="@+id/checkCost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textCreatedAtTime"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:layout_marginLeft="3sp"
+        android:layout_marginTop="10sp"
+        android:layout_marginBottom="10sp"/>
 
     <TextView
         android:text="textPrice"
@@ -32,34 +36,18 @@
         android:layout_height="wrap_content"
         android:id="@+id/textPrice"
         android:textAlignment="center"
-        android:layout_below="@+id/textCreatedAtDate"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="6dp"
         android:textSize="24sp"
-        tools:textColor="@android:color/black" />
+        tools:textColor="@android:color/black"
+        android:layout_alignBottom="@+id/checkCost"
+        android:layout_centerHorizontal="true" />
 
     <TextView
-        android:text="textUser"
+        android:text="textCreatedAtDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textUser"
-        android:layout_marginTop="6dp"
-        android:layout_below="@+id/textPrice"
+        android:layout_marginRight="3sp"
+        android:id="@+id/textCreatedAtDate"
+        android:layout_alignTop="@+id/checkCost"
         android:layout_alignParentEnd="true" />
 
-    <TextView
-        android:text="textStore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textStore"
-        android:layout_alignBaseline="@+id/textUser"
-        android:layout_alignBottom="@+id/textUser"
-        android:layout_alignParentStart="true" />
-
-    <CheckBox
-        android:id="@+id/checkCost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textPrice"
-        android:layout_alignParentStart="true" />
 </RelativeLayout>

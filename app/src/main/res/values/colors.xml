@@ -3,4 +3,19 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorSupermarket">#f49ac2</color>
+    <color name="colorDiscounter">#FFd1dc</color>
+    <color name="colorDrugstore">#AEC6CF</color>
+    <color name="colorPetshop">#77DD77</color>
+    <color name="colorTool">#CFCFC4</color>
+    <color name="colorFurniture">#FFB347</color>
+    <color name="colorBookstore">#FDFD96</color>
+    <color name="colorRestaurant">#FFD1DC</color>
+    <color name="colorSoccer">#CCFF33</color>
+    <color name="colorSew">#FFCC33</color>
+    <color name="colorKnit">#33FFCC</color>
+    <color name="colorGas">#C6B3FF</color>
+    <color name="colorBakery">#C6FFB3</color>
+
+    
 </resources>

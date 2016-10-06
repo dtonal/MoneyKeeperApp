@@ -21,6 +21,10 @@ import com.loopj.android.http.RequestParams;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import cz.msebera.android.httpclient.Header;
 
 
@@ -101,11 +105,7 @@ public class AddCostFragment extends Fragment {
 
         mCategorySpinner = (Spinner) getView().findViewById(R.id.spinnerCategory);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getContext(),
-                R.array.market_array, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
+        StoreAdapter adapter = new StoreAdapter(getContext(), Arrays.asList(getResources().getStringArray(R.array.market_array)) );
         mCategorySpinner.setAdapter(adapter);
 
 

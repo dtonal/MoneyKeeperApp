@@ -1,11 +1,13 @@
 package de.dtonal.moneykeeperapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,6 +62,8 @@ public class CostsFragment extends Fragment {
     private Button mDeleteButton;
 
     private OnFragmentInteractionListener mListener;
+    private ProgressDialog progressDialog;
+    private Iterator<Cost> mDeleteIterator;
 
 
     public CostsFragment() {
@@ -130,7 +135,16 @@ public class CostsFragment extends Fragment {
         mListView = (ListView) getView().findViewById(R.id.costs_list);
         mDeleteButton = (Button) getView().findViewById(R.id.costs_delete);
         mDeleteButton.setVisibility(View.GONE);
+        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deleteSelectedCosts();
+            }
+        });
 
+        reloadList();
+    }
+
+    private void reloadList() {
         RequestParams requestParams = new RequestParams();
         MoneyKeeperRestClientWithAuth.get("costs.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
             @Override
@@ -183,6 +197,69 @@ public class CostsFragment extends Fragment {
             }
 
         });
+    }
+
+    private void deleteSelectedCosts() {
+        SparseBooleanArray selectedIds = mAdapter.getSelectedIds();
+
+        ArrayList<Cost> selectedCosts = new ArrayList<>();
+        for(int i = 0; i < selectedIds.size(); i++)
+        {
+            selectedCosts.add((Cost) mListView.getItemAtPosition(selectedIds.keyAt(i)));
+        }
+        
+        mDeleteIterator = selectedCosts.iterator();
+
+        progressDialog =  new ProgressDialog(this.getContext());
+        progressDialog.show();
+
+        deleteNextCost();
+    }
+
+    private void deleteNextCost() {
+        if( mDeleteIterator == null || !mDeleteIterator.hasNext())
+        {
+            progressDialog.hide();
+            reloadList();
+
+        }else
+        {
+            Cost costToDelete = mDeleteIterator.next();
+
+
+            MoneyKeeperRestClientWithAuth.delete("costs/"+costToDelete.getId().toString()+".json", mMail, mPass, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess " + response.toString());
+                    deleteNextCost();
+
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
+                    Log.d(TAG, "onSuccess " + responseArray.toString());
+                }
+
+                @Override
+                public void onFailure(int a, Header[] h, String s, Throwable t)
+                {
+                    Log.d(TAG, "onFailure " + t.toString());
+                    progressDialog.hide();
+
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Log.d(TAG, "onFailure " + errorResponse.toString());
+                    progressDialog.hide();
+
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+
+            });
+
+        }
+
     }
 
 

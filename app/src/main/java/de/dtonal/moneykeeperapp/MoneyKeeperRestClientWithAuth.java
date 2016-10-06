@@ -24,6 +24,11 @@ public class MoneyKeeperRestClientWithAuth {
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
+    public static void delete(String url,String mail, String pass, AsyncHttpResponseHandler responseHandler){
+        client.setBasicAuth(mail, pass);
+        client.delete(getAbsoluteUrl(url), null, responseHandler);
+    }
+
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }
