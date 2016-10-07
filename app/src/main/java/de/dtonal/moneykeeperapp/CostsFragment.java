@@ -162,6 +162,7 @@ public class CostsFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 mAdapter = new CostsAdapter(getContext(), costs);
                 mAdapter.registerDataSetObserver(new DataSetObserver()
                 {

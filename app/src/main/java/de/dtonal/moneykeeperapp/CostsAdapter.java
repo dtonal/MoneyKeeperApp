@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -23,8 +24,7 @@ import java.util.Locale;
  */
 
 public class CostsAdapter extends ArrayAdapter<Cost> {
-    DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    DateFormat dateFormat = new SimpleDateFormat("EEE dd.MM.yyyy", Locale.GERMANY);
     private SparseBooleanArray mSelectedItemsIds;
     private CompoundButton.OnCheckedChangeListener mListener;
 
@@ -41,12 +41,15 @@ public class CostsAdapter extends ArrayAdapter<Cost> {
                 notifyDataSetChanged();
             }
         };
+        this.sort(new Comparator<Cost>() {
+            @Override
+            public int compare(Cost o1, Cost o2) {
+                return o2.getCreatedAt().compareTo(o1.getCreatedAt());
+            }
+        });
     }
 
-
-
     @Override
-
     public View getView(int position, View convertView, ViewGroup parent) {
 
         // Get the data item for this position
