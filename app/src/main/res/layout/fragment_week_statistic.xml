@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.dtonal.moneykeeperapp.WeekStatisticFragment">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+            <TextView
+                android:id="@+id/textCalendarWeek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="KW 52"
+                android:textSize="30sp"
+                android:textColor="@android:color/black"
+                />
+            <TextView
+                android:id="@+id/textWeek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="12.10. - 14.10."
+                android:textSize="16sp"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/textSum"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:textSize="30sp"
+            android:text="43,00 €"
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listStoreSumPerWeek"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ListView>
+
+</LinearLayout>
