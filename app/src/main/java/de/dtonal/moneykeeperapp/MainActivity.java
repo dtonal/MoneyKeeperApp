@@ -22,7 +22,10 @@ import static de.dtonal.moneykeeperapp.LoginActivity.settingsFileName;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AddCostFragment.OnFragmentInteractionListener, CostsFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        AddCostFragment.OnFragmentInteractionListener,
+        CostsFragment.OnFragmentInteractionListener,
+        WeekStatisticFragment.OnFragmentInteractionListener {
 
     public MoneyKeeperRestClientWithAuth client;
 
@@ -110,6 +113,11 @@ public class MainActivity extends AppCompatActivity
             CostsFragment costsFragment = CostsFragment.newInstance(mMail, mPass);
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, costsFragment, costsFragment.getTag()).commit();
+
+        }else if (id == R.id.nav_week_statistics) {
+            WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance();
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.content_main, weekStatisticFragment, weekStatisticFragment.getTag()).commit();
 
         }
 
