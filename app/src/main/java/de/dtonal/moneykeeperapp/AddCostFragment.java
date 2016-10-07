@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -50,9 +52,11 @@ public class AddCostFragment extends Fragment {
     private EditText mEditComment;
     private Button mSaveButton;
     private TextView mTextProcessing;
+    private LinearLayout mLayoutAddCostFragment;
 
     private OnFragmentInteractionListener mListener;
     private ProgressDialog progressDialog;
+    private StoreAdapter adapter;
 
     public AddCostFragment() {
         // Required empty public constructor
@@ -105,8 +109,22 @@ public class AddCostFragment extends Fragment {
 
         mCategorySpinner = (Spinner) getView().findViewById(R.id.spinnerCategory);
 
-        StoreAdapter adapter = new StoreAdapter(getContext(), Arrays.asList(getResources().getStringArray(R.array.market_array)) );
+        adapter = new StoreAdapter(getContext(), Arrays.asList(getResources().getStringArray(R.array.market_array)) );
         mCategorySpinner.setAdapter(adapter);
+        mLayoutAddCostFragment = (LinearLayout) getView().findViewById(R.id.layoutAddCostFragment);
+        mCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemSelected");
+                mLayoutAddCostFragment.setBackgroundResource(adapter.getBackgroundResourceForPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "onNothingSelected");
+
+            }
+        });
 
 
         mEditValue = (EditText) getView().findViewById(R.id.editValue);

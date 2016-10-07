@@ -2,7 +2,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="-16dp"
+    android:layout_marginStart="-16dp"
+    android:layout_marginEnd="-16dp"
+    android:layout_marginBottom="-16dp"
+    android:paddingBottom="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:paddingLeft="16dp"
     android:orientation="vertical"
+    android:background="@color/colorBookstore"
+    android:id="@+id/layoutAddCostFragment"
     tools:context="de.dtonal.moneykeeperapp.AddCostFragment">
 
     <TextView
