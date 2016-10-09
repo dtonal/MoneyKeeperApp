@@ -38,60 +38,8 @@ public class StoreAdapter extends ArrayAdapter  {
         TextView names = (TextView) convertView.findViewById(R.id.textView);
         LinearLayout layout = (LinearLayout) convertView.findViewById(R.id.layoutStore);
         names.setText(text);
-        switch (text) {
-            case "Supermarkt":
-                icon.setImageResource(R.drawable.ic_shopping_cart);
-                layout.setBackgroundResource(R.color.colorSupermarket);
-                break;
-            case "Discounter":
-                icon.setImageResource(R.drawable.ic_discounter);
-                layout.setBackgroundResource(R.color.colorDiscounter);
-                break;
-            case "Drogiere":
-                icon.setImageResource(R.drawable.ic_drugstore);
-                layout.setBackgroundResource(R.color.colorDrugstore);
-                break;
-            case "Tiershop":
-                icon.setImageResource(R.drawable.ic_petshop);
-                layout.setBackgroundResource(R.color.colorPetshop);
-                break;
-            case "Baumarkt":
-                icon.setImageResource(R.drawable.ic_tool);
-                layout.setBackgroundResource(R.color.colorTool);
-                break;
-            case "Möbelhaus":
-                icon.setImageResource(R.drawable.ic_furniture);
-                layout.setBackgroundResource(R.color.colorFurniture);
-                break;
-            case "Buchhandlung":
-                icon.setImageResource(R.drawable.ic_bookstore);
-                layout.setBackgroundResource(R.color.colorBookstore);
-                break;
-            case "Restaurant":
-                icon.setImageResource(R.drawable.ic_restaurant);
-                layout.setBackgroundResource(R.color.colorRestaurant);
-                break;
-            case "Fussball":
-                icon.setImageResource(R.drawable.ic_soccer);
-                layout.setBackgroundResource(R.color.colorSoccer);
-                break;
-            case "Nähladen":
-                icon.setImageResource(R.drawable.ic_sewing);
-                layout.setBackgroundResource(R.color.colorSew);
-                break;
-            case "Stricken":
-                icon.setImageResource(R.drawable.ic_knit);
-                layout.setBackgroundResource(R.color.colorKnit);
-                break;
-            case "Tankstelle":
-                icon.setImageResource(R.drawable.ic_gas);
-                layout.setBackgroundResource(R.color.colorGas);
-                break;
-            case "Bäckerei":
-                icon.setImageResource(R.drawable.ic_bakery);
-                layout.setBackgroundResource(R.color.colorBakery);
-                break;
-        }
+        icon.setImageResource(getImageResourceForName(text));
+        layout.setBackgroundResource(getBackgroundResourceForName(text));
         return convertView;
     }
 
@@ -108,10 +56,8 @@ public class StoreAdapter extends ArrayAdapter  {
         return getCustomView(position, convertView, parent);
     }
 
-    public int getBackgroundResourceForPosition(int position) {
-
-        String text = (String) getItem(position);
-        switch (text) {
+    public static int getBackgroundResourceForName(String storeAsText) {
+        switch (storeAsText) {
             case "Supermarkt":
                 return R.color.colorSupermarket;
                 
@@ -153,5 +99,55 @@ public class StoreAdapter extends ArrayAdapter  {
                 
         }
         return 0;
+    }
+
+
+    public static int getImageResourceForName(String storeAsText) {
+        switch (storeAsText) {
+            case "Supermarkt":
+                return R.drawable.ic_shopping_cart;
+
+            case "Discounter":
+                return R.drawable.ic_discounter;
+
+            case "Drogiere":
+                return R.drawable.ic_drugstore;
+
+            case "Tiershop":
+                return R.drawable.ic_petshop;
+
+            case "Baumarkt":
+                return R.drawable.ic_tool;
+
+            case "Möbelhaus":
+                return R.drawable.ic_furniture;
+
+            case "Buchhandlung":
+                return R.drawable.ic_bookstore;
+
+            case "Restaurant":
+                return R.drawable.ic_restaurant;
+
+            case "Fussball":
+                return R.drawable.ic_soccer;
+
+            case "Nähladen":
+                return R.drawable.ic_sewing;
+
+            case "Stricken":
+                return R.drawable.ic_knit;
+
+            case "Tankstelle":
+                return R.drawable.ic_gas;
+
+            case "Bäckerei":
+                return R.drawable.ic_bakery;
+
+        }
+        return 0;
+    }
+
+    public int getBackgroundResourceForName(int position) {
+         return getBackgroundResourceForName((String)getItem(position));
     }
 }

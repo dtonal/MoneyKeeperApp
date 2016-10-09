@@ -1,12 +1,44 @@
 package de.dtonal.moneykeeperapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
+import cz.msebera.android.httpclient.Header;
 
 
 /**
@@ -18,16 +50,29 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class WeekStatisticFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private ObjectMapper mapper = new ObjectMapper();
+    private static final String TAG = "WeekStatisticFragment";
+    private static final String ARG_MAIL = "mail";
+    private static final String ARG_PASS = "pass";
+    private Date firstDayInWeek;
+    private Date lastDayInWeek;
+    private int weekOfYear;
+    private int year;
+    DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.GERMANY);
+    private Calendar cal = Calendar.getInstance();
 
     private OnFragmentInteractionListener mListener;
+    private TextView mTextCalendarWeek;
+    private TextView mTextWeek;
+    private List<String> listOfStoreStringsToLoad;
+    private Iterator<String> storeIterator;
+    private ProgressDialog progressDialog;
+    private String mMail;
+    private String mPass;
+    private SumForStoreAdapter mAdapter;
+    private ListView mListView;
+    private TextView mTextSum;
 
     public WeekStatisticFragment() {
         // Required empty public constructor
@@ -40,9 +85,11 @@ public class WeekStatisticFragment extends Fragment {
      * @return A new instance of fragment WeekStatisticFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static WeekStatisticFragment newInstance() {
+    public static WeekStatisticFragment newInstance(String mail, String pass) {
         WeekStatisticFragment fragment = new WeekStatisticFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_MAIL, mail);
+        args.putString(ARG_PASS, pass);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,16 +98,130 @@ public class WeekStatisticFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
+            mMail = getArguments().getString(ARG_MAIL);
+            mPass = getArguments().getString(ARG_PASS);
         }
+    }
+
+    private void changeDateTo(Date date) {
+        firstDayInWeek = DateUtil.firstDayOfWeek(date);
+        lastDayInWeek = DateUtil.lastDayOfWeek(date);
+        weekOfYear = DateUtil.calenderWeek(date);
+        mTextWeek.setText(dateFormat.format(firstDayInWeek) + "-" + dateFormat.format(lastDayInWeek));
+        mTextCalendarWeek.setText("KW " + weekOfYear);
+        year = DateUtil.getYear(firstDayInWeek);
+        reloadLIst(weekOfYear, year);
+    }
+
+    private void reloadLIst(int weekOfYear, int year) {
+        RequestParams requestParams = new RequestParams();
+        requestParams.put("week", weekOfYear);
+        requestParams.put("year", year);
+        progressDialog.show();
+        MoneyKeeperRestClientWithAuth.post("weekstats.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
+                Log.d(TAG, "onSuccess " + responseArray.toString());
+                ArrayList<SumForStore> sumForStores = null;
+                try {
+                    sumForStores = mapper.readValue(responseArray.toString(), new TypeReference<ArrayList<SumForStore>>(){});
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                double sum = 0;
+                for(SumForStore sumForStore: sumForStores)
+                {
+                    sum += sumForStore.getSum();
+                }
+                mTextSum.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(sum));
+                mAdapter = new SumForStoreAdapter(getContext(), sumForStores);
+                mListView.setAdapter(mAdapter);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(int a, Header[] h, String s, Throwable t)
+            {
+                Log.d(TAG, "onFailure " + t.toString());
+                progressDialog.dismiss();
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d(TAG, "onFailure " + errorResponse.toString());
+                progressDialog.dismiss();
+            }
+
+        });
+    }
+
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mTextCalendarWeek = (TextView) getView().findViewById(R.id.textCalendarWeek);
+        mTextWeek = (TextView) getView().findViewById(R.id.textWeek);
+        mListView = (ListView) getView().findViewById(R.id.listStoreSumPerWeek);
+        mTextSum = (TextView) getView().findViewById(R.id.textSum);
+        changeDateTo(new Date());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_week_statistic, container, false);
+
+        View v = inflater.inflate(R.layout.fragment_week_statistic, null, false);
+        progressDialog =  new ProgressDialog(this.getContext());
+        final GestureDetector gesture = new GestureDetector(getActivity(),
+                new GestureDetector.SimpleOnGestureListener() {
+
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                                           float velocityY) {
+                        Log.i(TAG, "onFling has been called!");
+                        final int SWIPE_MIN_DISTANCE = 120;
+                        final int SWIPE_MAX_OFF_PATH = 250;
+                        final int SWIPE_THRESHOLD_VELOCITY = 200;
+                        try {
+                            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                                return false;
+                            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
+                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                Log.i(TAG, "Right to Left");
+                                if(!progressDialog.isShowing())
+                                {
+                                    changeDateTo(DateUtil.addDays(7, firstDayInWeek));
+                                }
+                            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                Log.i(TAG, "Left to Right");
+                                if(!progressDialog.isShowing())
+                                {
+                                    changeDateTo(DateUtil.addDays(-7, firstDayInWeek));
+                                }
+                            }
+                        } catch (Exception e) {
+                            // nothing
+                        }
+                        return super.onFling(e1, e2, velocityX, velocityY);
+                    }
+                });
+
+            v.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gesture.onTouchEvent(event);
+            }
+        });
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

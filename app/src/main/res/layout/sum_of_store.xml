@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/layoutSumOfStore">
 
     <TextView
         android:text="textStore"
-        android:layout_width="wrap_content"
+        android:layout_width="40sp"
         android:layout_height="wrap_content"
         android:id="@+id/textStore"
         android:gravity="center"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:textAlignment="textStart" />
 
     <TextView
         android:text="TextSum"
@@ -17,7 +19,8 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:id="@+id/textSum"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:textAlignment="textEnd" />
 
     <TextView
         android:text="TextPercent"
@@ -25,5 +28,8 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:id="@+id/textPercent"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:textAlignment="textEnd" />
+
+
 </LinearLayout>

@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -23,9 +22,7 @@ import com.loopj.android.http.RequestParams;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -116,7 +113,7 @@ public class AddCostFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "onItemSelected");
-                mLayoutAddCostFragment.setBackgroundResource(adapter.getBackgroundResourceForPosition(position));
+                mLayoutAddCostFragment.setBackgroundResource(adapter.getBackgroundResourceForName(position));
             }
 
             @Override

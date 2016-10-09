@@ -1,15 +1,11 @@
 package de.dtonal.moneykeeperapp;
 
 import android.content.Context;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -28,7 +24,17 @@ public class SumForStoreAdapter extends ArrayAdapter<SumForStore> {
         this.sort(new Comparator<SumForStore>() {
             @Override
             public int compare(SumForStore o1, SumForStore o2) {
-                return Double.compare(o2.getPercent(),o1.getPercent());
+                int retValue = 0;
+                try {
+                    retValue = Double.compare(o2.getPercent(),o1.getPercent());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if(retValue == 0)
+                {
+                    retValue = o1.getStore().compareTo(o2.getStore());
+                }
+                return retValue;
             }
         });
     }
@@ -57,11 +63,15 @@ public class SumForStoreAdapter extends ArrayAdapter<SumForStore> {
 
         TextView tvPercent = (TextView) convertView.findViewById(R.id.textPercent);
 
+        LinearLayout layoutSumOfStore = (LinearLayout) convertView.findViewById(R.id.layoutSumOfStore);
+
         tvStore.setText(sumForStore.getStore());
 
         tvSum.setText((DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(sumForStore.getSum())));
 
-        tvPercent.setText((DecimalFormat.getPercentInstance(Locale.GERMANY).format(sumForStore.getPercent()*100)));
+        tvPercent.setText((DecimalFormat.getPercentInstance(Locale.GERMANY).format(sumForStore.getPercent())));
+
+        layoutSumOfStore.setBackgroundResource(StoreAdapter.getBackgroundResourceForName(sumForStore.getStore()));
 
         return convertView;
 

@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
             manager.beginTransaction().replace(R.id.content_main, costsFragment, costsFragment.getTag()).commit();
 
         }else if (id == R.id.nav_week_statistics) {
-            WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance();
+            WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance(mMail, mPass);
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, weekStatisticFragment, weekStatisticFragment.getTag()).commit();
 

@@ -5,7 +5,8 @@
     tools:context="de.dtonal.moneykeeperapp.CostsFragment">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginStart="-16dp">
         <ListView
             android:choiceMode="multipleChoice"
             android:id="@+id/costs_list"
