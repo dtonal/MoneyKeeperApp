@@ -45,4 +45,33 @@ public class DateUtil {
         calendar.setTime(date);
         return calendar.get(Calendar.YEAR);
     }
+
+    public static int getMonth(Date date)
+    {
+        Calendar calendar = Calendar.getInstance(Locale.GERMANY);
+        calendar.setTime(date);
+        return calendar.get(Calendar.MONTH) +1;
+    }
+
+    public static Date firstDayOfMonth(Date date) {
+        Calendar calendar = Calendar.getInstance(Locale.GERMANY);
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        return calendar.getTime();
+    }
+
+
+    public static Date lastDayOfMonth(Date date) {
+        Calendar calendar = Calendar.getInstance(Locale.GERMANY);
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return calendar.getTime();
+    }
+
+    public static Date addMonth(int i, Date startDate) {
+        Calendar calendar = Calendar.getInstance(Locale.GERMANY);
+        calendar.setTime(startDate);
+        calendar.add(Calendar.MONTH, i);
+        return calendar.getTime();
+    }
 }

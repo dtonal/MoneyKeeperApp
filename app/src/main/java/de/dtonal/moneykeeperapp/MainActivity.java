@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         AddCostFragment.OnFragmentInteractionListener,
         CostsFragment.OnFragmentInteractionListener,
+        MonthStatisticsFragment.OnFragmentInteractionListener,
         WeekStatisticFragment.OnFragmentInteractionListener {
 
     public MoneyKeeperRestClientWithAuth client;
@@ -118,6 +119,11 @@ public class MainActivity extends AppCompatActivity
             WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance(mMail, mPass);
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, weekStatisticFragment, weekStatisticFragment.getTag()).commit();
+
+        }else if (id == R.id.nav_month_statistics) {
+            MonthStatisticsFragment monthStatisticFragment = MonthStatisticsFragment.newInstance(mMail, mPass);
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.content_main, monthStatisticFragment, monthStatisticFragment.getTag()).commit();
 
         }
 
