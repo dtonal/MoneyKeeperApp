@@ -96,7 +96,14 @@ public class StoreAdapter extends ArrayAdapter  {
                 
             case "Bäckerei":
                 return (R.color.colorBakery);
-                
+
+            case "Internet":
+                return (R.color.colorInternet);
+
+            case "Bioladen":
+                return (R.color.colorEcostore);
+
+
         }
         return 0;
     }
@@ -142,6 +149,12 @@ public class StoreAdapter extends ArrayAdapter  {
 
             case "Bäckerei":
                 return R.drawable.ic_bakery;
+
+            case "Internet":
+                return R.drawable.ic_internet;
+
+            case "Bioladen":
+                return R.drawable.ic_ecostore;
 
         }
         return 0;

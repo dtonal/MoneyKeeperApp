@@ -39,6 +39,8 @@
         <item>Stricken</item>
         <item>Tankstelle</item>
         <item>Bäckerei</item>
+        <item>Bioladen</item>
+        <item>Internet</item>
     </string-array>
 
     <!-- TODO: Remove or change this placeholder text -->

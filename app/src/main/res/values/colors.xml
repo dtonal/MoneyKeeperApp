@@ -16,6 +16,8 @@
     <color name="colorKnit">#33FFCC</color>
     <color name="colorGas">#C6B3FF</color>
     <color name="colorBakery">#C6FFB3</color>
+    <color name="colorInternet">#FFB34F</color>
+    <color name="colorEcostore">#C5F5FF</color>
 
-    
+
 </resources>
