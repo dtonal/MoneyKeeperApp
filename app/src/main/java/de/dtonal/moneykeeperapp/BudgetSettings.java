@@ -1,12 +1,37 @@
 package de.dtonal.moneykeeperapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+
+import cz.msebera.android.httpclient.Header;
 
 
 /**
@@ -18,16 +43,19 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class BudgetSettings extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "BudgetSettings";
+    private static final String ARG_MAIL = "mail";
+    private static final String ARG_PASS = "pass";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String mMail;
+    private String mPass;
 
     private OnFragmentInteractionListener mListener;
+    private EditText mEditMonthBudget;
+    private Button mSaveBudgetButton;
+    private TextView mTextDayBudget;
+    private TextView mTextProcessingSaveSettings;
+    private ProgressDialog progressDialog;
 
     public BudgetSettings() {
         // Required empty public constructor
@@ -37,16 +65,15 @@ public class BudgetSettings extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param mail  Parameter 1.
+     * @param pass Parameter 2.
      * @return A new instance of fragment BudgetSettings.
      */
     // TODO: Rename and change types and number of parameters
-    public static BudgetSettings newInstance(String param1, String param2) {
-        BudgetSettings fragment = new BudgetSettings();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+    public static BudgetSettings newInstance(String mail, String pass) {
+        BudgetSettings fragment = new BudgetSettings();Bundle args = new Bundle();
+        args.putString(ARG_MAIL, mail);
+        args.putString(ARG_PASS, pass);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,8 +82,8 @@ public class BudgetSettings extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mMail = getArguments().getString(ARG_MAIL);
+            mPass = getArguments().getString(ARG_PASS);
         }
     }
 
@@ -83,6 +110,110 @@ public class BudgetSettings extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        progressDialog =  new ProgressDialog(this.getContext());
+
+        mEditMonthBudget = (EditText) getView().findViewById(R.id.editMonthBudget);
+        mSaveBudgetButton = (Button) getView().findViewById(R.id.buttonSave);
+        mTextDayBudget = (TextView) getView().findViewById(R.id.textDayBudget);
+        mTextProcessingSaveSettings = (TextView) getView().findViewById(R.id.textProcessingSaveSettings);
+
+        mSaveBudgetButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                tryToSaveBudget();
+            }
+        });
+        loadBudget();
+    }
+
+    private void loadBudget() {
+        mSaveBudgetButton.setEnabled(false);
+        progressDialog.show();
+
+        MoneyKeeperRestClientWithAuth.get("budget.json", null, mMail, mPass, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d(TAG, "onSuccess " + response.toString());
+                try {
+                    setMonthBudget(response.getDouble("monthBudget"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mSaveBudgetButton.setEnabled(true);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(int a, Header[] h, String s, Throwable t)
+            {
+                Log.d(TAG, "onFailure " + t.toString());
+                progressDialog.dismiss();
+                mSaveBudgetButton.setEnabled(true);
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d(TAG, "onFailure " + errorResponse.toString());
+                progressDialog.dismiss();
+                mSaveBudgetButton.setEnabled(true);
+            }
+        });
+    }
+
+    private void setMonthBudget(double monthBudget) {
+        mEditMonthBudget.setText(String.valueOf(monthBudget));
+        mTextDayBudget.setText(String.valueOf(monthBudget/30));
+    }
+
+    private void tryToSaveBudget() {
+
+        mSaveBudgetButton.setEnabled(false);
+        progressDialog.show();
+
+        RequestParams params = new RequestParams();
+        String newBudget = mEditMonthBudget.getText().toString();
+        params.put("monthBudget", Double.parseDouble(newBudget));
+
+        MoneyKeeperRestClientWithAuth.post("budget.json", params, mMail, mPass, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d(TAG, "onSuccess " + response.toString());
+                try {
+                    setMonthBudget(response.getDouble("monthBudget"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mTextProcessingSaveSettings.setText(getResources().getString(R.string.add_cost_success));
+                mTextProcessingSaveSettings.setBackgroundColor(Color.GREEN);
+
+                mSaveBudgetButton.setEnabled(true);
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(int a, Header[] h, String s, Throwable t)
+            {
+                Log.d(TAG, "onFailure " + t.toString());
+                progressDialog.dismiss();
+                mSaveBudgetButton.setEnabled(true);
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d(TAG, "onFailure " + errorResponse.toString());
+                progressDialog.dismiss();
+                mSaveBudgetButton.setEnabled(true);
+            }
+        });
+
     }
 
     @Override

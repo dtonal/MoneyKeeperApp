@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
-        android:id="@+id/editText" />
+        android:id="@+id/editMonthBudget" />
 
     <TextView
         android:text="Tagesbudget"
@@ -27,10 +27,18 @@
         android:layout_height="wrap_content"
         android:text="44€"
         android:textAlignment="center"
+        android:id="@+id/textDayBudget"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textProcessingSaveSettings"
+        android:visibility="gone" />
     <Button
         android:text="Speichern"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/buttunSaveSettings" />
 
 </LinearLayout>
