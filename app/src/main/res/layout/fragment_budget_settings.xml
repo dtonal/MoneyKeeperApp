@@ -39,6 +39,6 @@
         android:text="Speichern"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/buttunSaveSettings" />
+        android:id="@+id/buttonSaveSettings" />
 
 </LinearLayout>

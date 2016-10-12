@@ -10,26 +10,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -119,7 +108,7 @@ public class BudgetSettings extends Fragment {
         progressDialog =  new ProgressDialog(this.getContext());
 
         mEditMonthBudget = (EditText) getView().findViewById(R.id.editMonthBudget);
-        mSaveBudgetButton = (Button) getView().findViewById(R.id.buttonSave);
+        mSaveBudgetButton = (Button) getView().findViewById(R.id.buttonSaveSettings);
         mTextDayBudget = (TextView) getView().findViewById(R.id.textDayBudget);
         mTextProcessingSaveSettings = (TextView) getView().findViewById(R.id.textProcessingSaveSettings);
 
@@ -135,12 +124,12 @@ public class BudgetSettings extends Fragment {
         mSaveBudgetButton.setEnabled(false);
         progressDialog.show();
 
-        MoneyKeeperRestClientWithAuth.get("budget.json", null, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.get("budgets.json", null, mMail, mPass, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
                 try {
-                    setMonthBudget(response.getDouble("monthBudget"));
+                    setMonthBudget(response.getDouble("value"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -179,14 +168,14 @@ public class BudgetSettings extends Fragment {
 
         RequestParams params = new RequestParams();
         String newBudget = mEditMonthBudget.getText().toString();
-        params.put("monthBudget", Double.parseDouble(newBudget));
+        params.put("value", Double.parseDouble(newBudget));
 
-        MoneyKeeperRestClientWithAuth.post("budget.json", params, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.post("budgets.json", params, mMail, mPass, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
                 try {
-                    setMonthBudget(response.getDouble("monthBudget"));
+                    setMonthBudget(response.getDouble("value"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
