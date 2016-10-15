@@ -20,6 +20,10 @@
             android:id="@+id/nav_month_statistics"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Monats-Statistik" />
+        <item
+            android:id="@+id/nav_status"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Status" />
 
         <item
             android:id="@+id/nav_budget"

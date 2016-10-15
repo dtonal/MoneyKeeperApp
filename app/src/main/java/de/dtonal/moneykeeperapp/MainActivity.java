@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity
         CostsFragment.OnFragmentInteractionListener,
         MonthStatisticsFragment.OnFragmentInteractionListener,
         WeekStatisticFragment.OnFragmentInteractionListener,
-        BudgetSettings.OnFragmentInteractionListener{
+        BudgetSettings.OnFragmentInteractionListener,
+        StatusFragment.OnFragmentInteractionListener{
 
     public MoneyKeeperRestClientWithAuth client;
 
@@ -130,6 +131,11 @@ public class MainActivity extends AppCompatActivity
             BudgetSettings budgetSettingsFragment = BudgetSettings.newInstance(mMail, mPass);
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, budgetSettingsFragment, budgetSettingsFragment.getTag()).commit();
+
+        }else if (id == R.id.nav_status) {
+            StatusFragment statusFragment = StatusFragment.newInstance(mMail, mPass);
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.content_main, statusFragment, statusFragment.getTag()).commit();
 
         }
 
