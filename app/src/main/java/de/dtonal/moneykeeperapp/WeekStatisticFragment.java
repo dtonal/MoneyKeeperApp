@@ -2,11 +2,8 @@ package de.dtonal.moneykeeperapp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.database.DataSetObserver;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -14,24 +11,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -44,7 +34,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -168,7 +157,7 @@ public class WeekStatisticFragment extends Fragment {
                 mAdapter = new SumForStoreAdapter(getContext(), sumForStores);
                 mListView.setAdapter(mAdapter);
 
-                PieDataSet dataSet = new PieDataSet(entries, "LALA");
+                PieDataSet dataSet = new PieDataSet(entries, "");
                 int[] colorArray = new int[colors.size()];
                 int i = 0;
                 for (Integer color: colors) {
@@ -189,6 +178,8 @@ public class WeekStatisticFragment extends Fragment {
                 chart.setEntryLabelColor(R.color.blue);
                 chart.setDescription("Ausgabenübersicht");
                 chart.setExtraOffsets(20.f, 0.f, 20.f, 0.f);
+                chart.getLegend().setEnabled(false);
+                chart.setHighlightPerTapEnabled(false);
                 chart.invalidate();
                 progressDialog.dismiss();
             }
@@ -219,7 +210,7 @@ public class WeekStatisticFragment extends Fragment {
         mTextWeek = (TextView) getView().findViewById(R.id.textWeek);
         mListView = (ListView) getView().findViewById(R.id.listStoreSumPerWeek);
         mTextSum = (TextView) getView().findViewById(R.id.textSum);
-        chart = (PieChart) getView().findViewById(R.id.chart);
+        chart = (PieChart) getView().findViewById(R.id.chartWeekStatistics);
         changeDateTo(new Date());
     }
 
