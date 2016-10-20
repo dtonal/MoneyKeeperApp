@@ -20,6 +20,19 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.Chart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -39,6 +52,8 @@ import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
+
+import static de.dtonal.moneykeeperapp.StoreAdapter.getBackgroundResourceForName;
 
 
 /**
@@ -73,6 +88,7 @@ public class WeekStatisticFragment extends Fragment {
     private SumForStoreAdapter mAdapter;
     private ListView mListView;
     private TextView mTextSum;
+    private PieChart chart;
 
     public WeekStatisticFragment() {
         // Required empty public constructor
@@ -124,19 +140,56 @@ public class WeekStatisticFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
                 Log.d(TAG, "onSuccess " + responseArray.toString());
                 ArrayList<SumForStore> sumForStores = null;
+                List<PieEntry> entries = new ArrayList<PieEntry>();
+                List<Integer> colors = new ArrayList<Integer>();
+                float pos=0;
                 try {
                     sumForStores = mapper.readValue(responseArray.toString(), new TypeReference<ArrayList<SumForStore>>(){});
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 double sum = 0;
-                for(SumForStore sumForStore: sumForStores)
-                {
+                Iterator<SumForStore> iterator = sumForStores.iterator();
+                while (iterator.hasNext()) {
+                    SumForStore sumForStore = iterator.next();
                     sum += sumForStore.getSum();
+                    if(sumForStore.getSum() > 0)
+                    {
+                        pos+=1;
+                        entries.add(new PieEntry(new Float(sumForStore.getSum()), sumForStore.getStore()));
+                        colors.add(getBackgroundResourceForName(sumForStore.getStore()));
+                    }
+                    else
+                    {
+                        iterator.remove();
+                    }
                 }
                 mTextSum.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(sum));
                 mAdapter = new SumForStoreAdapter(getContext(), sumForStores);
                 mListView.setAdapter(mAdapter);
+
+                PieDataSet dataSet = new PieDataSet(entries, "LALA");
+                int[] colorArray = new int[colors.size()];
+                int i = 0;
+                for (Integer color: colors) {
+                    colorArray[i] = color;
+                    i++;
+                }
+                dataSet.setColors(colorArray, getContext());
+                PieData data = new PieData(dataSet);
+                data.setValueFormatter(new ValueFormatter() {
+                    @Override
+                    public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                        return DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(value);
+                    }
+                });
+                data.setValueTextSize(16f);
+                chart.setDrawEntryLabels(false);
+                chart.setData(data);
+                chart.setEntryLabelColor(R.color.blue);
+                chart.setDescription("Ausgabenübersicht");
+                chart.setExtraOffsets(20.f, 0.f, 20.f, 0.f);
+                chart.invalidate();
                 progressDialog.dismiss();
             }
 
@@ -166,6 +219,7 @@ public class WeekStatisticFragment extends Fragment {
         mTextWeek = (TextView) getView().findViewById(R.id.textWeek);
         mListView = (ListView) getView().findViewById(R.id.listStoreSumPerWeek);
         mTextSum = (TextView) getView().findViewById(R.id.textSum);
+        chart = (PieChart) getView().findViewById(R.id.chart);
         changeDateTo(new Date());
     }
 
