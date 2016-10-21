@@ -49,5 +49,6 @@
     <string name="add_cost_success">Rechnung erfolgreich hinzugefügt.</string>
     <string name="error_invalid_value">Bitte einen Wert eingeben.</string>
     <string name="action_delete">Löschen</string>
+    <string name="chartDescription">Kostenübersicht</string>
 
 </resources>

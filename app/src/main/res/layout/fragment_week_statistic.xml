@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_marginStart="-16dp"
     android:layout_marginEnd="-16dp"
-    tools:context="de.dtonal.moneykeeperapp.WeekStatisticFragment">
+    tools:context="de.dtonal.moneykeeperapp.fragments.WeekStatisticFragment">
 
     <LinearLayout
         android:orientation="horizontal"

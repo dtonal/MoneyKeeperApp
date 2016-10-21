@@ -1,13 +1,10 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -15,7 +12,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -40,18 +36,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
-
-import static android.Manifest.permission.READ_CONTACTS;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClient;
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.user.UserData;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
+    private final static String PREFERENCE_PASSWORD = "pass";
+    private final static String PREFERENCE_EMAIL = "mail";
+
 
     public static String settingsFileName = "MoneyKeeperSettings";
 
@@ -61,7 +57,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private TextView mResultView;
-
     private SharedPreferences preferences;
 
     @Override
@@ -70,16 +65,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
         mResultView = (TextView) findViewById(R.id.resultTextView);
 
         preferences = getSharedPreferences(settingsFileName, 0);
 
-        String mail = preferences.getString("mail", null);
-        String pass = preferences.getString("pass", null);
+        UserData.mailAdress = preferences.getString(PREFERENCE_EMAIL, null);
+        UserData.password = preferences.getString(PREFERENCE_PASSWORD, null);
 
-        if(mail != null && pass != null)
+        if(UserData.mailAdress != null && UserData.password != null)
         {
             changeToMainActivity();
         }
@@ -107,59 +100,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
+    
+    
     private void changeToMainActivity()
     {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
-
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
@@ -249,8 +199,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         SharedPreferences.Editor prefEditor = preferences.edit();
-        prefEditor.putString("mail", email);
-        prefEditor.putString("pass", password);
+        prefEditor.putString(PREFERENCE_EMAIL, email);
+        prefEditor.putString(PREFERENCE_PASSWORD, password);
         prefEditor.commit();
     }
 

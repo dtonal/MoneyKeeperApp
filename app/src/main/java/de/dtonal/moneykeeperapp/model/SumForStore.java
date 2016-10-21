@@ -1,8 +1,9 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
+ * Represents a SumForStore-Object from the backend via API.
  * Created by dtonal on 07.10.16.
  */
 

@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.connection;
 
 /**
  * Created by dtonal on 27.09.16.
@@ -8,8 +8,6 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class MoneyKeeperRestClient {
-
-    private static final String BASE_URL = "http://46.101.102.237:3000/api/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -23,6 +21,6 @@ public class MoneyKeeperRestClient {
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
-        return BASE_URL + relativeUrl;
+        return Urls.URL_BACKEND + relativeUrl;
     }
 }

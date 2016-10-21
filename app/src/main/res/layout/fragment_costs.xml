@@ -6,7 +6,7 @@
     android:layout_marginStart="-16dp"
     android:layout_marginEnd="-16dp"
     android:layout_marginBottom="-16dp"
-    tools:context="de.dtonal.moneykeeperapp.CostsFragment">
+    tools:context="de.dtonal.moneykeeperapp.fragments.CostsFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -25,24 +25,18 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 import cz.msebera.android.httpclient.Header;
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.adapter.StoreAdapter;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClientWithAuth;
+import de.dtonal.moneykeeperapp.connection.Urls;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AddCostFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AddCostFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A fragment to add a new cost to the backend.
  */
 public class AddCostFragment extends Fragment {
 
     private static final String TAG = "AddCostFragment";
-    private static final String ARG_MAIL = "mail";
-    private static final String ARG_PASS = "pass";
-
-    private String mMail;
-    private String mPass;
 
     private Spinner mCategorySpinner;
     private EditText mEditValue;
@@ -52,8 +46,8 @@ public class AddCostFragment extends Fragment {
     private LinearLayout mLayoutAddCostFragment;
 
     private OnFragmentInteractionListener mListener;
-    private ProgressDialog progressDialog;
-    private StoreAdapter adapter;
+    private ProgressDialog mProgressDialog;
+    private StoreAdapter mStoreAdapter;
 
     public AddCostFragment() {
         // Required empty public constructor
@@ -63,41 +57,19 @@ public class AddCostFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param mail mail
-     * @param pass password
      * @return A new instance of fragment AddCostFragment.
      */
-    public static AddCostFragment newInstance(String mail, String pass) {
+    public static AddCostFragment newInstance() {
         AddCostFragment fragment = new AddCostFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_MAIL, mail);
-        args.putString(ARG_PASS, pass);
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mMail = getArguments().getString(ARG_MAIL);
-            mPass = getArguments().getString(ARG_PASS);
-        }
-
-    }
-
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_cost, container, false);
-    }
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -105,34 +77,32 @@ public class AddCostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mCategorySpinner = (Spinner) getView().findViewById(R.id.spinnerCategory);
-
-        adapter = new StoreAdapter(getContext(), Arrays.asList(getResources().getStringArray(R.array.market_array)) );
-        mCategorySpinner.setAdapter(adapter);
         mLayoutAddCostFragment = (LinearLayout) getView().findViewById(R.id.layoutAddCostFragment);
-        mCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemSelected");
-                mLayoutAddCostFragment.setBackgroundResource(adapter.getBackgroundResourceForName(position));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Log.d(TAG, "onNothingSelected");
-
-            }
-        });
-
-
         mEditValue = (EditText) getView().findViewById(R.id.editValue);
         mEditComment = (EditText) getView().findViewById(R.id.editComment);
         mSaveButton = (Button) getView().findViewById(R.id.buttonSave);
         mTextProcessing = (TextView) getView().findViewById(R.id.textProcessing);
+
+        mStoreAdapter = new StoreAdapter(getContext(), Arrays.asList(getResources().getStringArray(R.array.market_array)));
+        mCategorySpinner.setAdapter(mStoreAdapter);
+        mCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mLayoutAddCostFragment.setBackgroundResource(mStoreAdapter.getBackgroundResourceForName(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 tryToSave();
             }
         });
+
+        mProgressDialog = new ProgressDialog(this.getContext());
     }
 
     private void tryToSave() {
@@ -145,40 +115,37 @@ public class AddCostFragment extends Fragment {
         }
 
         String comment = mEditComment.getText().toString();
-        String category = mCategorySpinner.getSelectedItem().toString();
+        String selectedStore = mCategorySpinner.getSelectedItem().toString();
 
         RequestParams requestParams = new RequestParams();
         requestParams.put("price", value);
         requestParams.put("comment", comment);
-        requestParams.put("store", category);
+        requestParams.put("store", selectedStore);
 
         mEditValue.setEnabled(false);
         mCategorySpinner.setEnabled(false);
         mEditComment.setEnabled(false);
         mSaveButton.setEnabled(false);
-
-        progressDialog =  new ProgressDialog(this.getContext());
-        progressDialog.show();
+        mProgressDialog.show();
 
 
-        MoneyKeeperRestClientWithAuth.post("costs.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.post(Urls.PATH_COSTS, requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
                 mTextProcessing.setVisibility(View.VISIBLE);
                 mTextProcessing.setText(getResources().getString(R.string.add_cost_success));
                 mTextProcessing.setBackgroundColor(Color.GREEN);
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
             }
 
             @Override
-            public void onFailure(int a, Header[] h, String s, Throwable t)
-            {
+            public void onFailure(int a, Header[] h, String s, Throwable t) {
                 Log.d(TAG, "onFailure " + t.toString());
                 mTextProcessing.setVisibility(View.VISIBLE);
                 mTextProcessing.setBackgroundColor(Color.RED);
                 mTextProcessing.setText(getResources().getString(R.string.error_while_add_cost));
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
 
             }
 
@@ -187,9 +154,10 @@ public class AddCostFragment extends Fragment {
                 Log.d(TAG, "onFailure " + errorResponse.toString());
 
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                //TODO: Style user feedback.
                 mTextProcessing.setBackgroundColor(Color.RED);
                 mTextProcessing.setText(R.string.error_while_add_cost);
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
             }
 
         });

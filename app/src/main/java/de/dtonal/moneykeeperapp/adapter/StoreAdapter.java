@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
+
+import de.dtonal.moneykeeperapp.R;
 
 /**
  * Created by dtonal on 06.10.16.

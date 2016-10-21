@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,6 +12,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
+
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.model.SumForStore;
 
 /**
  * Created by dtonal on 07.10.16.

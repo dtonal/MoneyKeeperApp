@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.connection;
 
 /**
  * Created by dtonal on 28.09.16.

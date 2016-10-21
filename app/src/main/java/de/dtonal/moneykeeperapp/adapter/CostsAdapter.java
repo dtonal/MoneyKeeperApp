@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.adapter;
 
 import android.content.Context;
 import android.util.SparseBooleanArray;
@@ -18,6 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
+
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.model.Cost;
 
 /**
  * Created by dtonal on 04.10.16.

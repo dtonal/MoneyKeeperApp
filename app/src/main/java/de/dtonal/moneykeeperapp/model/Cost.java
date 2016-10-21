@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,18 +6,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 /**
- * Created by dtonal on 02.10.16.
+ * Representation of a Cost-Object in the backend.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Cost {
     private Integer id;
 
     private Double price;
+
     private String store;
+
     @JsonProperty("user_id")
     private Integer userId;
+
     @JsonProperty("created_at")
     private Date createdAt;
+
+    private String comment;
+    @JsonProperty("updated_at")
+    private Date updatedAt;
+
+    public Cost() {
+    }
 
     public Date getCreatedAt() {
         return createdAt;
@@ -33,13 +43,6 @@ public class Cost {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    @JsonProperty("updated_at")
-    private Date updatedAt;
-    private String comment;
-
-    public Cost() {
     }
 
     public Integer getUserId() {

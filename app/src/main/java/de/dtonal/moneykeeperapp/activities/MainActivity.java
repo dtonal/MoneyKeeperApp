@@ -1,13 +1,10 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,9 +13,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import static de.dtonal.moneykeeperapp.LoginActivity.settingsFileName;
+import de.dtonal.moneykeeperapp.fragments.BudgetSettingsFragment;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClientWithAuth;
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.fragments.AddCostFragment;
+import de.dtonal.moneykeeperapp.fragments.CostsFragment;
+import de.dtonal.moneykeeperapp.fragments.MonthStatisticsFragment;
+import de.dtonal.moneykeeperapp.fragments.StatusFragment;
+import de.dtonal.moneykeeperapp.fragments.WeekStatisticFragment;
 
 
 public class MainActivity extends AppCompatActivity
@@ -27,7 +30,7 @@ public class MainActivity extends AppCompatActivity
         CostsFragment.OnFragmentInteractionListener,
         MonthStatisticsFragment.OnFragmentInteractionListener,
         WeekStatisticFragment.OnFragmentInteractionListener,
-        BudgetSettings.OnFragmentInteractionListener,
+        BudgetSettingsFragment.OnFragmentInteractionListener,
         StatusFragment.OnFragmentInteractionListener{
 
     public MoneyKeeperRestClientWithAuth client;
@@ -52,13 +55,13 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        SharedPreferences preferences = getSharedPreferences(settingsFileName, 0);
+        SharedPreferences preferences = getSharedPreferences(LoginActivity.settingsFileName, 0);
 
         mMail = preferences.getString("mail", null);
         mPass = preferences.getString("pass", null);
 
 
-        AddCostFragment addCostFragment = AddCostFragment.newInstance(mMail, mPass);
+        AddCostFragment addCostFragment = AddCostFragment.newInstance();
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
     }
@@ -66,7 +69,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
 
-        AddCostFragment addCostFragment = AddCostFragment.newInstance(mMail, mPass);
+        AddCostFragment addCostFragment = AddCostFragment.newInstance();
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
     }
@@ -87,7 +90,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
-            SharedPreferences preferences = getSharedPreferences(settingsFileName, 0);
+            SharedPreferences preferences = getSharedPreferences(LoginActivity.settingsFileName, 0);
 
             SharedPreferences.Editor prefEditor = preferences.edit();
             prefEditor.putString("mail", null);
@@ -109,31 +112,31 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_add_cost) {
-            AddCostFragment addCostFragment = AddCostFragment.newInstance(mMail, mPass);
+            AddCostFragment addCostFragment = AddCostFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, addCostFragment, addCostFragment.getTag()).commit();
         } else if (id == R.id.nav_list_costs) {
-            CostsFragment costsFragment = CostsFragment.newInstance(mMail, mPass);
+            CostsFragment costsFragment = CostsFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, costsFragment, costsFragment.getTag()).commit();
 
         }else if (id == R.id.nav_week_statistics) {
-            WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance(mMail, mPass);
+            WeekStatisticFragment weekStatisticFragment = WeekStatisticFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, weekStatisticFragment, weekStatisticFragment.getTag()).commit();
 
         }else if (id == R.id.nav_month_statistics) {
-            MonthStatisticsFragment monthStatisticFragment = MonthStatisticsFragment.newInstance(mMail, mPass);
+            MonthStatisticsFragment monthStatisticFragment = MonthStatisticsFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, monthStatisticFragment, monthStatisticFragment.getTag()).commit();
 
         }else if (id == R.id.nav_budget) {
-            BudgetSettings budgetSettingsFragment = BudgetSettings.newInstance(mMail, mPass);
+            BudgetSettingsFragment budgetSettingsFragment = BudgetSettingsFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, budgetSettingsFragment, budgetSettingsFragment.getTag()).commit();
 
         }else if (id == R.id.nav_status) {
-            StatusFragment statusFragment = StatusFragment.newInstance(mMail, mPass);
+            StatusFragment statusFragment = StatusFragment.newInstance();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.content_main, statusFragment, statusFragment.getTag()).commit();
 
@@ -149,9 +152,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public MoneyKeeperRestClientWithAuth getClient() {
-        return client;
-    }
 
 
 }

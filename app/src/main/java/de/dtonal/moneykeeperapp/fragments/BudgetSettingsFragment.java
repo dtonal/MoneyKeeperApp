@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -21,23 +21,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
-
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClientWithAuth;
+import de.dtonal.moneykeeperapp.connection.Urls;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link BudgetSettings.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link BudgetSettings#newInstance} factory method to
- * create an instance of this fragment.
+ * A simple fragment to see and change the budget settings.
  */
-public class BudgetSettings extends Fragment {
-    private static final String TAG = "BudgetSettings";
-    private static final String ARG_MAIL = "mail";
-    private static final String ARG_PASS = "pass";
-
-    private String mMail;
-    private String mPass;
+public class BudgetSettingsFragment extends Fragment {
+    private static final String TAG = "BudgetSettingsFragment";
 
     private OnFragmentInteractionListener mListener;
     private EditText mEditMonthBudget;
@@ -46,7 +38,7 @@ public class BudgetSettings extends Fragment {
     private TextView mTextProcessingSaveSettings;
     private ProgressDialog progressDialog;
 
-    public BudgetSettings() {
+    public BudgetSettingsFragment() {
         // Required empty public constructor
     }
 
@@ -54,26 +46,13 @@ public class BudgetSettings extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param mail  Parameter 1.
-     * @param pass Parameter 2.
-     * @return A new instance of fragment BudgetSettings.
+     * @return A new instance of fragment BudgetSettingsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static BudgetSettings newInstance(String mail, String pass) {
-        BudgetSettings fragment = new BudgetSettings();Bundle args = new Bundle();
-        args.putString(ARG_MAIL, mail);
-        args.putString(ARG_PASS, pass);
+    public static BudgetSettingsFragment newInstance() {
+        BudgetSettingsFragment fragment = new BudgetSettingsFragment();Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mMail = getArguments().getString(ARG_MAIL);
-            mPass = getArguments().getString(ARG_PASS);
-        }
     }
 
     @Override
@@ -83,7 +62,6 @@ public class BudgetSettings extends Fragment {
         return inflater.inflate(R.layout.fragment_budget_settings, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -117,14 +95,14 @@ public class BudgetSettings extends Fragment {
                 tryToSaveBudget();
             }
         });
-        loadBudget();
+        loadCurrentBudget();
     }
 
-    private void loadBudget() {
+    private void loadCurrentBudget() {
         mSaveBudgetButton.setEnabled(false);
         progressDialog.show();
 
-        MoneyKeeperRestClientWithAuth.get("budgets.json", null, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.get(Urls.PATH_BUDGETS, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
@@ -170,7 +148,7 @@ public class BudgetSettings extends Fragment {
         String newBudget = mEditMonthBudget.getText().toString();
         params.put("value", Double.parseDouble(newBudget));
 
-        MoneyKeeperRestClientWithAuth.post("budgets.json", params, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.post(Urls.PATH_BUDGETS, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
@@ -179,6 +157,7 @@ public class BudgetSettings extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                //TODO: Style user feedback.
                 mTextProcessingSaveSettings.setText(getResources().getString(R.string.add_cost_success));
                 mTextProcessingSaveSettings.setBackgroundColor(Color.GREEN);
 
@@ -222,7 +201,6 @@ public class BudgetSettings extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

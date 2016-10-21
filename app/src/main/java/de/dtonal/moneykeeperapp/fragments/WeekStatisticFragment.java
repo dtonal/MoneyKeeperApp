@@ -1,4 +1,4 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
@@ -34,48 +33,44 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.adapter.SumForStoreAdapter;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClientWithAuth;
+import de.dtonal.moneykeeperapp.model.ModelMapper;
+import de.dtonal.moneykeeperapp.model.SumForStore;
+import de.dtonal.moneykeeperapp.utils.DateUtil;
 
-import static de.dtonal.moneykeeperapp.StoreAdapter.getBackgroundResourceForName;
+import static de.dtonal.moneykeeperapp.adapter.StoreAdapter.getBackgroundResourceForName;
+
 
 /**
- * Created by dtonal on 09.10.16.
+ * Fragment to see statistics for a week.
  */
+public class WeekStatisticFragment extends Fragment {
 
-public class MonthStatisticsFragment extends Fragment {
+    private static final String TAG = "WeekStatisticFragment";
+    private Date mFirstDayInWeek;
+    private Date mLastDayInWeek;
+    private int mWeekOfYear;
+    private int mYear;
+    private DateFormat mShortDateFormat = new SimpleDateFormat("dd.MM", Locale.GERMANY);
 
-    private ObjectMapper mapper = new ObjectMapper();
-    private static final String TAG = "MonthStatisticFragment";
-    private static final String ARG_MAIL = "mail";
-    private static final String ARG_PASS = "pass";
-    private Date firstDayInMonth;
-    private Date lastDayInMonth;
-    private int year;
-    DateFormat fromToFormat = new SimpleDateFormat("dd.MM", Locale.GERMANY);
-    DateFormat monthFormat = new SimpleDateFormat("MMM yyyy", Locale.GERMANY);
-    private Calendar cal = Calendar.getInstance();
-
-    private MonthStatisticsFragment.OnFragmentInteractionListener mListener;
-    private TextView mTextMonth;
-    private TextView mTextFromTo;
-    private List<String> listOfStoreStringsToLoad;
-    private Iterator<String> storeIterator;
-    private ProgressDialog progressDialog;
-    private String mMail;
-    private String mPass;
+    private OnFragmentInteractionListener mListener;
+    private TextView mTextCalendarWeek;
+    private TextView mTextWeek;
+    private ProgressDialog mProgressDialog;
     private SumForStoreAdapter mAdapter;
     private ListView mListView;
     private TextView mTextSum;
-    private int month;
-    private PieChart chart;
+    private PieChart mChart;
 
-    public MonthStatisticsFragment() {
+    public WeekStatisticFragment() {
         // Required empty public constructor
     }
 
@@ -83,14 +78,11 @@ public class MonthStatisticsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment MonthStatisticsFragment.
+     * @return A new instance of fragment WeekStatisticFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static MonthStatisticsFragment newInstance(String mail, String pass) {
-        MonthStatisticsFragment fragment = new MonthStatisticsFragment();
+    public static WeekStatisticFragment newInstance() {
+        WeekStatisticFragment fragment = new WeekStatisticFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_MAIL, mail);
-        args.putString(ARG_PASS, pass);
         fragment.setArguments(args);
         return fragment;
     }
@@ -98,38 +90,34 @@ public class MonthStatisticsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-            mMail = getArguments().getString(ARG_MAIL);
-            mPass = getArguments().getString(ARG_PASS);
-        }
     }
 
     private void changeDateTo(Date date) {
-        firstDayInMonth = DateUtil.firstDayOfMonth(date);
-        lastDayInMonth = DateUtil.lastDayOfMonth(date);
-        mTextFromTo.setText(fromToFormat.format(firstDayInMonth) + "-" + fromToFormat.format(lastDayInMonth));
-        mTextMonth.setText(monthFormat.format(firstDayInMonth));
-        year = DateUtil.getYear(firstDayInMonth);
-        month = DateUtil.getMonth(firstDayInMonth);
-        reloadLIst(month, year);
+        mFirstDayInWeek = DateUtil.firstDayOfWeek(date);
+        mLastDayInWeek = DateUtil.lastDayOfWeek(date);
+        mWeekOfYear = DateUtil.calenderWeek(date);
+        mTextWeek.setText(mShortDateFormat.format(mFirstDayInWeek) + "-" + mShortDateFormat.format(mLastDayInWeek));
+        mTextCalendarWeek.setText("KW " + mWeekOfYear);
+        mYear = DateUtil.getYear(mFirstDayInWeek);
+        reloadLIst(mWeekOfYear, mYear);
     }
 
-    private void reloadLIst(int monthOfYear, int year) {
+    private void reloadLIst(int weekOfYear, int year) {
         RequestParams requestParams = new RequestParams();
-        requestParams.put("month", monthOfYear);
+        requestParams.put("week", weekOfYear);
         requestParams.put("year", year);
-        progressDialog.show();
-        MoneyKeeperRestClientWithAuth.post("monthstats.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
+        mProgressDialog.show();
+        MoneyKeeperRestClientWithAuth.post("weekstats.json", requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray responseArray) {
                 Log.d(TAG, "onSuccess " + responseArray.toString());
                 ArrayList<SumForStore> sumForStores = null;
                 List<PieEntry> entries = new ArrayList<PieEntry>();
                 List<Integer> colors = new ArrayList<Integer>();
-                float pos=0;
+                float pos = 0;
                 try {
-                    sumForStores = mapper.readValue(responseArray.toString(), new TypeReference<ArrayList<SumForStore>>(){});
+                    sumForStores = ModelMapper.getInstance().readValue(responseArray.toString(), new TypeReference<ArrayList<SumForStore>>() {
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -138,14 +126,11 @@ public class MonthStatisticsFragment extends Fragment {
                 while (iterator.hasNext()) {
                     SumForStore sumForStore = iterator.next();
                     sum += sumForStore.getSum();
-                    if(sumForStore.getSum() > 0)
-                    {
-                        pos+=1;
+                    if (sumForStore.getSum() > 0) {
+                        pos += 1;
                         entries.add(new PieEntry(new Float(sumForStore.getSum()), sumForStore.getStore()));
                         colors.add(getBackgroundResourceForName(sumForStore.getStore()));
-                    }
-                    else
-                    {
+                    } else {
                         iterator.remove();
                     }
                 }
@@ -156,7 +141,7 @@ public class MonthStatisticsFragment extends Fragment {
                 PieDataSet dataSet = new PieDataSet(entries, "");
                 int[] colorArray = new int[colors.size()];
                 int i = 0;
-                for (Integer color: colors) {
+                for (Integer color : colors) {
                     colorArray[i] = color;
                     i++;
                 }
@@ -169,29 +154,28 @@ public class MonthStatisticsFragment extends Fragment {
                     }
                 });
                 data.setValueTextSize(16f);
-                chart.setDrawEntryLabels(false);
-                chart.setData(data);
-                chart.setEntryLabelColor(R.color.blue);
-                chart.setDescription("Ausgabenübersicht");
-                chart.setExtraOffsets(20.f, 0.f, 20.f, 0.f);
-
-                chart.setHighlightPerTapEnabled(false);
-                chart.invalidate();
-                progressDialog.dismiss();
+                mChart.setDrawEntryLabels(false);
+                mChart.setData(data);
+                mChart.setEntryLabelColor(R.color.blue);
+                mChart.setDescription(getString(R.string.chartDescription));
+                mChart.setExtraOffsets(20.f, 0.f, 20.f, 0.f);
+                mChart.getLegend().setEnabled(false);
+                mChart.setHighlightPerTapEnabled(false);
+                mChart.invalidate();
+                mProgressDialog.dismiss();
             }
 
             @Override
-            public void onFailure(int a, Header[] h, String s, Throwable t)
-            {
+            public void onFailure(int a, Header[] h, String s, Throwable t) {
                 Log.d(TAG, "onFailure " + t.toString());
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
 
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.d(TAG, "onFailure " + errorResponse.toString());
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
             }
 
         });
@@ -202,12 +186,11 @@ public class MonthStatisticsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mTextMonth = (TextView) getView().findViewById(R.id.textMonth);
-        mTextFromTo = (TextView) getView().findViewById(R.id.textFromTo);
-        mListView = (ListView) getView().findViewById(R.id.listStoreSumPerMonth);
-        mTextSum = (TextView) getView().findViewById(R.id.textMonthStatisticsSum);
-
-        chart = (PieChart) getView().findViewById(R.id.chartMonthStatistics);
+        mTextCalendarWeek = (TextView) getView().findViewById(R.id.textCalendarWeek);
+        mTextWeek = (TextView) getView().findViewById(R.id.textWeek);
+        mListView = (ListView) getView().findViewById(R.id.listStoreSumPerWeek);
+        mTextSum = (TextView) getView().findViewById(R.id.textSum);
+        mChart = (PieChart) getView().findViewById(R.id.chartWeekStatistics);
         changeDateTo(new Date());
     }
 
@@ -215,8 +198,8 @@ public class MonthStatisticsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_month_statistics, null, false);
-        progressDialog =  new ProgressDialog(this.getContext());
+        View v = inflater.inflate(R.layout.fragment_week_statistic, null, false);
+        mProgressDialog = new ProgressDialog(this.getContext());
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
 
@@ -238,16 +221,14 @@ public class MonthStatisticsFragment extends Fragment {
                             if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
                                     && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                                 Log.i(TAG, "Right to Left");
-                                if(!progressDialog.isShowing())
-                                {
-                                    changeDateTo(DateUtil.addMonth(1, firstDayInMonth));
+                                if (!mProgressDialog.isShowing()) {
+                                    changeDateTo(DateUtil.addDays(7, mFirstDayInWeek));
                                 }
                             } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
                                     && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                                 Log.i(TAG, "Left to Right");
-                                if(!progressDialog.isShowing())
-                                {
-                                    changeDateTo(DateUtil.addMonth(-1, firstDayInMonth));
+                                if (!mProgressDialog.isShowing()) {
+                                    changeDateTo(DateUtil.addDays(-7, mFirstDayInWeek));
                                 }
                             }
                         } catch (Exception e) {
@@ -266,18 +247,11 @@ public class MonthStatisticsFragment extends Fragment {
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof MonthStatisticsFragment.OnFragmentInteractionListener) {
-            mListener = (MonthStatisticsFragment.OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -301,7 +275,6 @@ public class MonthStatisticsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

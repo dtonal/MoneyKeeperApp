@@ -13,7 +13,7 @@
     android:orientation="vertical"
     android:background="@color/colorBookstore"
     android:id="@+id/layoutAddCostFragment"
-    tools:context="de.dtonal.moneykeeperapp.AddCostFragment">
+    tools:context="de.dtonal.moneykeeperapp.fragments.AddCostFragment">
 
     <TextView
         android:text="Neue Rechnung hinzufügen"

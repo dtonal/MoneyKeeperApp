@@ -1,6 +1,5 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.fragments;
 
-import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -11,47 +10,37 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
+import de.dtonal.moneykeeperapp.R;
+import de.dtonal.moneykeeperapp.connection.MoneyKeeperRestClientWithAuth;
+import de.dtonal.moneykeeperapp.connection.Urls;
+import de.dtonal.moneykeeperapp.model.ModelMapper;
+import de.dtonal.moneykeeperapp.model.StatusReport;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link StatusFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link StatusFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment to see status of given today relative to the daily, weekly and monthly budget.
  */
 public class StatusFragment extends Fragment {
-    private ObjectMapper mapper = new ObjectMapper();
     private static final String TAG = "StatusFragment";
-    private static final String ARG_MAIL = "mail";
-    private static final String ARG_PASS = "pass";
 
-    DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
-    DateFormat dateFormatForApi = new SimpleDateFormat("yyyy/MM/dd", Locale.GERMANY);
+    DateFormat mDefaultDateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+    DateFormat mJsonApiDateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.GERMANY);
 
-    private String mMail;
-    private String mPass;
 
     private OnFragmentInteractionListener mListener;
     private TextView mTextStatusDate;
@@ -60,8 +49,8 @@ public class StatusFragment extends Fragment {
     private TextView mTextResultDay;
     private TextView mTextGivenWeek;
     private TextView mTextActualWeek;
-    private TextView mTextResultWeek ;
-    private TextView mTextGivenMonth ;
+    private TextView mTextResultWeek;
+    private TextView mTextGivenMonth;
     private TextView mTextActualMonth;
     private TextView mTextResultMonth;
     private TextView mTextDayOfWeek;
@@ -69,9 +58,7 @@ public class StatusFragment extends Fragment {
     private ImageView mImageStatusDay;
     private ImageView mImageStatusWeek;
     private ImageView mImageStatusMonth;
-    private TextView mTextMonthlyBudget;
-    private TextView mTextDailyBudget;
-    private ProgressDialog progressDialog;
+    private ProgressDialog mProgressDialog;
 
     public StatusFragment() {
         // Required empty public constructor
@@ -81,16 +68,11 @@ public class StatusFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param mail Parameter 1.
-     * @param pass Parameter 2.
      * @return A new instance of fragment StatusFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static StatusFragment newInstance(String mail, String pass) {
+    public static StatusFragment newInstance() {
         StatusFragment fragment = new StatusFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_MAIL, mail);
-        args.putString(ARG_PASS, pass);
         fragment.setArguments(args);
         return fragment;
     }
@@ -98,10 +80,6 @@ public class StatusFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mMail = getArguments().getString(ARG_MAIL);
-            mPass = getArguments().getString(ARG_PASS);
-        }
     }
 
     @Override
@@ -123,47 +101,43 @@ public class StatusFragment extends Fragment {
         mImageStatusDay = (ImageView) getView().findViewById(R.id.imageStatusDay);
         mImageStatusWeek = (ImageView) getView().findViewById(R.id.imageStatusWeek);
         mImageStatusMonth = (ImageView) getView().findViewById(R.id.imageStatusMonth);
-//        mTextMonthlyBudget = (TextView) getView().findViewById(R.id.textMonthlyBudget);
-//        mTextDailyBudget = (TextView) getView().findViewById(R.id.textDailyBudget);
         changeDateTo(new Date());
     }
 
     private void changeDateTo(Date date) {
-        mTextStatusDate.setText(dateFormat.format(date));
+        mTextStatusDate.setText(mDefaultDateFormat.format(date));
 
         RequestParams requestParams = new RequestParams();
-        requestParams.put("date", dateFormatForApi.format(date));
-        progressDialog.show();
+        requestParams.put("date", mJsonApiDateFormat.format(date));
+        mProgressDialog.show();
 
-        MoneyKeeperRestClientWithAuth.post("state_reports.json", requestParams, mMail, mPass, new JsonHttpResponseHandler() {
+        MoneyKeeperRestClientWithAuth.post(Urls.PATH_STATE_REPORTS, requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d(TAG, "onSuccess " + response.toString());
                 StatusReport report = null;
                 try {
-                     report = mapper.readValue(response.toString(), StatusReport.class);
+                    report = ModelMapper.getInstance().readValue(response.toString(), StatusReport.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if(report != null)
-                {
+                if (report != null) {
                     updateViewForReport(report);
                 }
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
             }
 
             @Override
-            public void onFailure(int a, Header[] h, String s, Throwable t)
-            {
+            public void onFailure(int a, Header[] h, String s, Throwable t) {
                 Log.d(TAG, "onFailure " + t.toString());
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
 
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.d(TAG, "onFailure " + errorResponse.toString());
-                progressDialog.dismiss();
+                mProgressDialog.dismiss();
             }
 
         });
@@ -180,8 +154,8 @@ public class StatusFragment extends Fragment {
         mTextGivenMonth.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(report.getMonthlyBudget()));
         mTextActualMonth.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(report.getMonthState()));
         mTextResultMonth.setText(DecimalFormat.getCurrencyInstance(Locale.GERMANY).format(report.getMonthlyBudget() - report.getMonthState()));
-        mTextDayOfWeek.setText(report.getDayOfWeek() +". Tag");
-        mTextDayOfMonth.setText(report.getDayOfMonth() +". Tag");
+        mTextDayOfWeek.setText(report.getDayOfWeek() + ". Tag");
+        mTextDayOfMonth.setText(report.getDayOfMonth() + ". Tag");
 
         mImageStatusDay.setImageResource(getResourceImageForDeviation(report.getDayState(), report.getDailyBudget()));
         mImageStatusWeek.setImageResource(getResourceImageForDeviation(report.getWeekState(), report.getWeeklyBudget()));
@@ -190,12 +164,10 @@ public class StatusFragment extends Fragment {
 
     private int getResourceImageForDeviation(Double state, Double budget) {
         Double diff = budget - state;
-        if(diff/budget > 0)
-        {
+        if (diff / budget > 0) {
             return R.drawable.ic_happy;
         }
-        if(diff/budget < -0.15)
-        {
+        if (diff / budget < -0.15) {
             return R.drawable.ic_sad;
         }
         return R.drawable.ic_okay;
@@ -204,11 +176,10 @@ public class StatusFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        progressDialog =  new ProgressDialog(this.getContext());
+        mProgressDialog = new ProgressDialog(this.getContext());
         return inflater.inflate(R.layout.fragment_status, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -243,7 +214,6 @@ public class StatusFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

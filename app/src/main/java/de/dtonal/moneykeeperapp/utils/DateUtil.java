@@ -1,10 +1,11 @@
-package de.dtonal.moneykeeperapp;
+package de.dtonal.moneykeeperapp.utils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 /**
+ * Simple util to handle messy Date class in POST-LocalDate (Java 8) times.
  * Created by dtonal on 08.10.16.
  */
 
